@@ -5,14 +5,16 @@
 constexpr const int control_pin=6;
 constexpr const int thermometer_pin=A2;
 
-constexpr const int temperature=385;// 37.5 degrees celsius , adjusted for being low by 1 degree earlier
-constexpr const int samples=2000; // the resulting rate will be 5 times a second
+constexpr const int temperature=394;// adjusted to get 37 from the other thermometer
+constexpr const int samples=2048; // the resulting rate will be 5 times a second
 
 void setup() {
   // put your setup code here, to run once:
+  analogReference(INTERNAL);//2.56v on this arduino
   pinMode(thermometer_pin, INPUT);
   pinMode(control_pin, OUTPUT);
   pinMode(13, OUTPUT);
+  
   #ifdef SPAM
   Serial.begin(115200);
   #endif
@@ -36,13 +38,14 @@ void loop() {
   // tr*500/1024 - 50
   //Serial.println(tr);
   // temperature in tenths of a degree, celsius
+  analogReference(INTERNAL);//2.56v on this arduino
   long sum=0;
   for(int i=0; i<samples; ++i){
     sum+=analogRead(thermometer_pin);
   }
-  long avg_times_100=sum/(samples/100);
-  int t=((long)avg_times_100*50l/1024l)-500l;
-  //int t=((long)tr*5000l/1024l)-500l;
+  long avg_times_256=sum/(samples/256);
+  int t=((long)avg_times_256*10l/1024l)-500l;
+  //int t=((long)tr*2560l/1024l)-500l;
   integral+=temperature-t;
 
   integral=min(max(integral, integral_low), integral_high);
